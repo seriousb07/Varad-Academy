@@ -17,7 +17,7 @@
     }
 
     .navbar {
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(10px);
       color: #333;
       padding: 12px 30px;
@@ -28,11 +28,12 @@
       align-items: center;
       z-index: 100;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      border-radius: 0 0 15px 15px;
+      
+      flex-wrap: wrap;
     }
 
     .navbar img {
-      height: 70px;
+      height: 60px;
     }
 
     .menu-toggle {
@@ -48,13 +49,12 @@
 
     .navbar-links {
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
+      gap: 15px;
     }
 
     .navbar-links a {
       color: #333;
-      margin: 8px;
       text-decoration: none;
       font-weight: 500;
       transition: color 0.3s ease;
@@ -64,34 +64,54 @@
       color: #b30000;
     }
 
-    .navbar-links.active {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: block;
+      }
+
+      .navbar-links {
+        width: 100%;
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        background-color: #fff;
+        padding: 10px 0;
+      }
+
+      .navbar-links.active {
+        display: flex;
+      }
+
+      .navbar-links a {
+        padding: 10px 20px;
+        width: 100%;
+        border-top: 1px solid #ddd;
+      }
     }
 
     .section {
-      margin: 30px;
+    
+      margin: 20px;
       padding: 20px;
       background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     }
 
     .slider {
-      position: relative;
-      width: 100%;
-      height: 80vh;
-      overflow: hidden;
-      border-radius: 12px;
-    }
+        position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: 80vh; /* ⬅️ Reduce this from 80vh to 50vh or any suitable value */
+  overflow: hidden;
+  margin: auto;
+}
 
-    .slider img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-    }
+.slider img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* or 'contain' if you want no cropping */
+  display: none;
+}
 
     .slider img.active {
       display: block;
@@ -230,10 +250,10 @@
 </head>
 <body>
 
-  <div class="navbar">
-    <img src="images/logo.png" alt="Varad Academy Logo">
+<div class="navbar">
+    <img src="./images/logo name red.png" alt="Varad Academy Logo">
     <div class="menu-toggle" onclick="toggleMenu()">
-      <svg viewBox="0 0 100 80" width="30" height="30">
+      <svg viewBox="0 0 100 80">
         <rect width="100" height="10"></rect>
         <rect y="30" width="100" height="10"></rect>
         <rect y="60" width="100" height="10"></rect>
@@ -247,22 +267,24 @@
       <a href="#map">Map</a>
       <a href="admin/login.php">Admin Login</a>
     </div>
-  </div>
+</div>
 
-  <div id="home" class="section slider">
-    <?php
-      $conn = new mysqli("localhost", "root", "", "varad_academy");
-      $result = $conn->query("SELECT * FROM slider_images");
-      $index = 0;
-      while($row = $result->fetch_assoc()) {
-        echo '<img src="images/'.$row['image_path'].'" class="slide '.($index==0?'active':'').'">';
-        $index++;
-      }
-    ?>
-    <div class="dots">
-      <?php for ($i = 0; $i < $index; $i++) echo "<span class='dot' onclick='showSlide($i)'></span>"; ?>
-    </div>
+
+  <div id="home" class="Section slider">
+  <?php
+    $conn = new mysqli("localhost", "root", "", "varad_academy");
+    $result = $conn->query("SELECT * FROM slider_images");
+    $index = 0;
+    while($row = $result->fetch_assoc()) {
+      echo '<img src="admin/' . $row['image_path'] . '" class="slide ' . ($index==0 ? 'active' : '') . '">';
+      $index++;
+    }
+  ?>
+  <div class="dots">
+    <?php for ($i = 0; $i < $index; $i++) echo "<span class='dot' onclick='showSlide($i)'></span>"; ?>
   </div>
+</div>
+
 
   <div id="about" class="section">
     <h2>About Us</h2>
@@ -297,7 +319,7 @@
 
   <div id="map" class="section">
     <h2>Find Us</h2>
-    <iframe src="https://www.google.com/maps?q=Pune&output=embed" width="100%" height="300" style="border:0; border-radius: 10px;"></iframe>
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3764.485093766085!2d75.21678637481385!3d19.34813728191332!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bdb6926dcb64c73%3A0x627ccf015ae884a3!2sVarad%20Academy!5e0!3m2!1sen!2sin!4v1743926361349!5m2!1sen!2sin" width="100%" height="600" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
   </div>
 
   <div id="contact" class="section">
@@ -305,7 +327,7 @@
     <div class="contact-section" style="display:flex; flex-wrap: wrap; gap: 30px; align-items: center;">
       <div style="flex:1; text-align:center;">
         <video autoplay muted loop style="max-width:90%; height:auto; border-radius: 16px;">
-          <source src="./images/Contact us (1).mp4" type="video/mp4">
+          <source src="./images/Contact us.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
       </div>
