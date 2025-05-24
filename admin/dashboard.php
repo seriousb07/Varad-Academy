@@ -5,17 +5,16 @@ if (!isset($_SESSION['admin'])) {
     exit();
 }
 
-// DB connection
 $conn = new mysqli("localhost", "root", "", "varad_academy");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetching data
 $toppersResult = $conn->query("SELECT * FROM toppers");
 $sliderResult = $conn->query("SELECT * FROM slider_images ORDER BY id DESC LIMIT 5");
 $totalToppers = $conn->query("SELECT COUNT(*) AS total FROM toppers")->fetch_assoc()['total'];
 $totalSlider = $conn->query("SELECT COUNT(*) AS total FROM slider_images")->fetch_assoc()['total'];
+$batches = $conn->query("SELECT * FROM batches ORDER BY id DESC");
 ?>
 
 <!DOCTYPE html>
@@ -29,16 +28,17 @@ $totalSlider = $conn->query("SELECT COUNT(*) AS total FROM slider_images")->fetc
     body {
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      background-color: #f9f9f9;
+      background-color: #f4f6f8;
+      color: #2C3E50;
     }
 
     .navbar {
-      background: #fff;
+      background: #ffffff;
       padding: 14px 30px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       position: sticky;
       top: 0;
       z-index: 1000;
@@ -48,30 +48,71 @@ $totalSlider = $conn->query("SELECT COUNT(*) AS total FROM slider_images")->fetc
       height: 60px;
     }
 
-    .navbar a {
-      color: #b30000;
-      font-weight: bold;
-      text-decoration: none;
-      transition: color 0.3s ease;
+    .nav-links {
+      display: flex;
+      gap: 12px;
     }
 
-    .navbar a:hover {
-      color: #8c0000;
+    .nav-links a {
+      color: #2C3E50;
+      font-weight: bold;
+      text-decoration: none;
+      padding: 8px 16px;
+      border: 1px solid #2C3E50;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: #2C3E50;
+      color: #fff;
+    }
+
+    .menu-toggle {
+      display: none;
+      font-size: 28px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: #2C3E50;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        right: 0;
+        background: white;
+        width: 200px;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: none;
+        padding: 10px;
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
     }
 
     .container {
       max-width: 1200px;
       margin: 40px auto;
-      padding: 20px;
+      padding: 30px;
       background: white;
       border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
     }
 
     h2, h3 {
-      color: #b30000;
+      color: #2C3E50;
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
 
     .stats {
@@ -83,13 +124,13 @@ $totalSlider = $conn->query("SELECT COUNT(*) AS total FROM slider_images")->fetc
     }
 
     .stat-box {
-      background: #ffeaea;
-      color: #b30000;
+      background: #ecf0f1;
+      color: #2C3E50;
       padding: 20px;
       border-radius: 10px;
       width: 220px;
       text-align: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
     }
 
     .stat-box h4 {
@@ -98,7 +139,7 @@ $totalSlider = $conn->query("SELECT COUNT(*) AS total FROM slider_images")->fetc
     }
 
     .stat-box p {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
     }
 
@@ -108,102 +149,66 @@ $totalSlider = $conn->query("SELECT COUNT(*) AS total FROM slider_images")->fetc
     }
 
     .actions a {
-      background-color: #b30000;
+      background-color: #3498DB;
       color: white;
       text-decoration: none;
-      padding: 10px 20px;
+      padding: 12px 20px;
       margin: 10px;
-      border-radius: 6px;
+      border-radius: 8px;
       font-weight: 500;
       display: inline-block;
       transition: background-color 0.3s ease;
     }
 
     .actions a:hover {
-      background-color: #8c0000;
+      background-color: #2980B9;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 40px;
-    }
-
-    thead {
-      background-color: #ffe5e5;
-      color: #b30000;
-    }
-
-    th, td {
-      padding: 12px;
-      border: 1px solid #ddd;
-      text-align: center;
-    }
-
-    td img {
-      height: 60px;
-      width: 60px;
-      object-fit: cover;
-      border-radius: 5px;
-    }
-
-    .btn-edit, .btn-delete {
-      padding: 6px 12px;
-      font-size: 14px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      color: white;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .btn-edit { background-color: #007bff; }
-    .btn-delete { background-color: #dc3545; }
-
-    .slider-section {
+    .batch-section {
       margin-top: 40px;
     }
 
-    .slider-container {
+    .batch-container {
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
       justify-content: center;
     }
 
-    .slider-item {
-      position: relative;
+    .batch-card {
+      background: #f0f3f5;
+      padding: 20px;
+      border-radius: 12px;
+      width: 250px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+      text-align: center;
+      color: #2C3E50;
     }
 
-    .slider-item img {
-      width: 200px;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    .batch-card h4 {
+      font-size: 20px;
+      margin-bottom: 10px;
     }
 
-    .slider-item form {
-      position: absolute;
-      top: 5px;
-      right: 5px;
+    .batch-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
     }
 
-    .slider-item button {
-      background: #dc3545;
+    .batch-actions a {
+      background: #3498DB;
       color: white;
-      border: none;
-      padding: 4px 8px;
-      font-size: 12px;
-      border-radius: 4px;
-      cursor: pointer;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
     }
 
-    @media (max-width: 768px) {
-      .stats { flex-direction: column; align-items: center; }
-      .slider-container { flex-direction: column; }
-      .actions a { display: block; margin: 10px auto; }
+    .batch-actions a:hover {
+      background: #2980B9;
     }
   </style>
 </head>
@@ -211,7 +216,12 @@ $totalSlider = $conn->query("SELECT COUNT(*) AS total FROM slider_images")->fetc
 
   <div class="navbar">
     <img src="../images/logo.png" alt="Varad Academy Logo">
-    <a href="logout.php">Logout</a>
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="../index.php">🏠 Home</a>
+      <a href="dashboard.php">📊 Dashboard</a>
+      <a href="logout.php">🚪 Logout</a>
+    </div>
   </div>
 
   <div class="container">
@@ -231,11 +241,33 @@ $totalSlider = $conn->query("SELECT COUNT(*) AS total FROM slider_images")->fetc
     <div class="actions">
       <a href="add_topper.php">➕ Add Topper</a>
       <a href="upload_slider.php">🖼️ Upload Slider Image</a>
+      <a href="add_batch.php">📚 Create Batch</a>
     </div>
 
-
+    <div class="batch-section">
+      <h3>📘 All Batches</h3>
+      <div class="batch-container">
+        <?php while ($row = $batches->fetch_assoc()) { ?>
+          <div class="batch-card">
+            <h4><?= htmlspecialchars($row['name']) ?></h4>
+            <div class="batch-actions">
+              <a href="mark_attendance.php?batch_id=<?= $row['id'] ?>">📊 Mark Attendance</a>
+              <a href="attendance_report.php?batch_id=<?= $row['id'] ?>">📄 View Attendance</a>
+              <a href="edit_batch.php?batch_id=<?= $row['id'] ?>">✏️ Edit Batch</a>
+              <a href="delete_batch.php?batch_id=<?= $row['id'] ?>" onclick="return confirm('Are you sure you want to delete this batch?')">❌ Delete Batch</a>
+            </div>
+          </div>
+        <?php } ?>
+      </div>
     </div>
   </div>
+
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("navLinks");
+      menu.classList.toggle("active");
+    }
+  </script>
 
 </body>
 </html>

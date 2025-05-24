@@ -141,23 +141,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     .login-container button:hover {
       background-color: #8c0000;
     }
-
-    @media (max-width: 768px) {
-      .navbar-links {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        margin-top: 10px;
-      }
-
-      .navbar-links.active {
-        display: flex;
-      }
-
-      .menu-toggle {
-        display: block;
-      }
-    }
   </style>
 </head>
 <body>
@@ -173,12 +156,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </svg>
     </div>
     <div class="navbar-links" id="navbarLinks">
-      <a href="#home">Home</a>
-      <a href="#about">About</a>
-      <a href="#toppers">Toppers</a>
-      <a href="#contact">Contact</a>
-      <a href="#map">Map</a>
-      <a href="admin/login.php">Admin Login</a>
+      <a href="../index.php">Home</a> 
+      <a href="login.php">Admin Login</a>
     </div>
   </div>
 
